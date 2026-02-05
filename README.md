@@ -54,6 +54,11 @@
 ## الإعدادات
 
 - **Firebase**: عدّل `assets/js/firebase-init.js` بإعدادات مشروعك.
+- **Firestore** (لتخزين المشاريع بين المتصفحات والأجهزة):
+  1. افتح [Firebase Console](https://console.firebase.google.com) → مشروعك
+  2. من القائمة: Build → Firestore Database → Create database
+  3. اختر وضع التطوير (للاختبار) أو الإنتاج وحدد قواعد الأمان
+  4. المجموعة `projects` تُنشأ تلقائياً عند إضافة أول مشروع
 - **API Key (OpenAI)**: اختياري – يُضبط من لوحة التحكم → الإعدادات لتفعيل الدردشة الذكية.
 
 ## الترخيص

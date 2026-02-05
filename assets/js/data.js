@@ -1,72 +1,130 @@
 /**
  * Data Management Module
- * إدارة البيانات باستخدام LocalStorage
+ * إدارة البيانات - Firestore (مشاركة بين المتصفحات) أو LocalStorage (احتياطي)
  */
 
-// Storage Key
 const STORAGE_KEY = 'digitalServicesProjects';
+const FIRESTORE_COLLECTION = 'projects';
+
+let projectsCache = [];
+let useFirestore = false;
+let firestoreUnsubscribe = null;
 
 /**
- * Get all projects from LocalStorage
- * الحصول على جميع المشاريع من LocalStorage
+ * Initialize Firestore listener (call when firebaseReady)
+ * تهيئة Firestore واستماع التحديثات
  */
-function getAllProjects() {
+async function initFirestoreData() {
+    if (!window.firebaseDb) return;
     try {
-        const projects = localStorage.getItem(STORAGE_KEY);
-        return projects ? JSON.parse(projects) : [];
-    } catch (error) {
-        console.error('Error reading projects from localStorage:', error);
-        return [];
+        var mod = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+        var q = mod.query(
+            mod.collection(window.firebaseDb, FIRESTORE_COLLECTION),
+            mod.orderBy('createdAt', 'desc')
+        );
+        firestoreUnsubscribe = mod.onSnapshot(q, function (snapshot) {
+            projectsCache = snapshot.docs.map(function (doc) {
+                var d = doc.data();
+                d.id = doc.id;
+                return d;
+            });
+            if (snapshot.empty && !localStorage.getItem('firestore_migrated')) {
+                var local = _getFromStorage();
+                if (local.length > 0) {
+                    local.forEach(function (p) {
+                        var data = _toFirestoreData(p);
+                        mod.addDoc(mod.collection(window.firebaseDb, FIRESTORE_COLLECTION), data).catch(function () {});
+                    });
+                    localStorage.setItem('firestore_migrated', '1');
+                }
+            }
+            window.dispatchEvent(new CustomEvent('projectsUpdated'));
+        }, function (err) {
+            console.warn('Firestore error, using LocalStorage:', err);
+            projectsCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        });
+        useFirestore = true;
+    } catch (e) {
+        console.warn('Firestore init failed:', e);
+        projectsCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     }
 }
 
-/**
- * Save projects to LocalStorage
- * حفظ المشاريع في LocalStorage
- */
-function saveProjects(projects) {
+// Listen for Firebase ready (async init)
+if (typeof window !== 'undefined') {
+    window.addEventListener('firebaseReady', function () { initFirestoreData(); });
+    if (window.firebaseDb) initFirestoreData();
+}
+
+function _getFromStorage() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch (e) { return []; }
+}
+
+function _saveToStorage(projects) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
         return true;
-    } catch (error) {
-        console.error('Error saving projects to localStorage:', error);
-        return false;
-    }
+    } catch (e) { return false; }
+}
+
+/**
+ * Get all projects
+ */
+function getAllProjects() {
+    if (useFirestore) return projectsCache.slice();
+    return _getFromStorage();
 }
 
 /**
  * Get active projects only
- * الحصول على المشاريع المفعلة فقط
  */
 function getActiveProjects() {
-    const allProjects = getAllProjects();
-    return allProjects.filter(project => project.isActive === true);
+    return getAllProjects().filter(function (p) { return p.isActive === true; });
 }
 
 /**
  * Get project by ID
- * الحصول على مشروع بواسطة المعرف
  */
 function getProjectById(id) {
-    const projects = getAllProjects();
-    return projects.find(project => project.id === id);
+    return getAllProjects().find(function (p) { return p.id === id; });
 }
 
 /**
  * Generate unique ID
- * إنشاء معرف فريد
  */
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
 /**
+ * Project data for Firestore (serializable)
+ */
+function _toFirestoreData(projectData) {
+    var p = {
+        name: projectData.name,
+        description: projectData.description,
+        url: projectData.url,
+        displayType: projectData.displayType || 'preview',
+        isActive: projectData.isActive !== undefined ? projectData.isActive : true,
+        projectType: projectData.projectType || 'url',
+        createdAt: projectData.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+    if (projectData.projectType === 'file') {
+        p.fileName = projectData.fileName;
+        p.fileContent = projectData.fileContent;
+        if (projectData.files) p.files = projectData.files;
+    }
+    return p;
+}
+
+/**
  * Add new project
- * إضافة مشروع جديد
  */
 function addProject(projectData) {
-    const projects = getAllProjects();
-    const newProject = {
+    var newProject = {
         id: generateId(),
         name: projectData.name,
         description: projectData.description,
@@ -77,66 +135,101 @@ function addProject(projectData) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
-    
-    // Add file-specific fields if it's a file project
     if (projectData.projectType === 'file') {
         newProject.fileName = projectData.fileName;
-        newProject.fileContent = projectData.fileContent; // Base64 encoded (for backward compatibility)
-        if (projectData.files) {
-            newProject.files = projectData.files; // All files object
-        }
+        newProject.fileContent = projectData.fileContent;
+        if (projectData.files) newProject.files = projectData.files;
     }
-    
+
+    if (useFirestore && window.firebaseDb) {
+        return (async function () {
+            try {
+                var mod = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+                var ref = await mod.addDoc(mod.collection(window.firebaseDb, FIRESTORE_COLLECTION), _toFirestoreData(newProject));
+                newProject.id = ref.id;
+                return newProject;
+            } catch (e) {
+                console.error('Firestore add error:', e);
+                var projects = _getFromStorage();
+                projects.push(newProject);
+                _saveToStorage(projects);
+                return newProject;
+            }
+        })();
+    }
+
+    var projects = _getFromStorage();
     projects.push(newProject);
-    saveProjects(projects);
-    return newProject;
+    _saveToStorage(projects);
+    return Promise.resolve(newProject);
 }
 
 /**
  * Update project
- * تحديث مشروع
  */
 function updateProject(id, projectData) {
-    const projects = getAllProjects();
-    const index = projects.findIndex(project => project.id === id);
-    
-    if (index === -1) {
-        return false;
-    }
-    
-    projects[index] = {
-        ...projects[index],
+    var projects = getAllProjects();
+    var idx = projects.findIndex(function (p) { return p.id === id; });
+    if (idx === -1) return Promise.resolve(false);
+
+    var updated = {
+        ...projects[idx],
         ...projectData,
         id: id,
         updatedAt: new Date().toISOString()
     };
-    
-    saveProjects(projects);
-    return true;
+
+    if (useFirestore && window.firebaseDb) {
+        return (async function () {
+            try {
+                var mod = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+                await mod.updateDoc(mod.doc(window.firebaseDb, FIRESTORE_COLLECTION, id), _toFirestoreData(updated));
+                return true;
+            } catch (e) {
+                console.error('Firestore update error:', e);
+                projects[idx] = updated;
+                _saveToStorage(projects);
+                return true;
+            }
+        })();
+    }
+
+    projects[idx] = updated;
+    _saveToStorage(projects);
+    return Promise.resolve(true);
 }
 
 /**
  * Delete project
- * حذف مشروع
  */
 function deleteProject(id) {
-    const projects = getAllProjects();
-    const filteredProjects = projects.filter(project => project.id !== id);
-    saveProjects(filteredProjects);
-    return projects.length !== filteredProjects.length;
+    var projects = getAllProjects();
+    var filtered = projects.filter(function (p) { return p.id !== id; });
+    if (projects.length === filtered.length) return Promise.resolve(false);
+
+    if (useFirestore && window.firebaseDb) {
+        return (async function () {
+            try {
+                var mod = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+                await mod.deleteDoc(mod.doc(window.firebaseDb, FIRESTORE_COLLECTION, id));
+                return true;
+            } catch (e) {
+                console.error('Firestore delete error:', e);
+                _saveToStorage(filtered);
+                return true;
+            }
+        })();
+    }
+
+    _saveToStorage(filtered);
+    return Promise.resolve(true);
 }
 
 /**
  * Toggle project active status
- * تفعيل/إلغاء تفعيل مشروع
  */
 function toggleProjectStatus(id) {
-    const project = getProjectById(id);
-    if (!project) {
-        return false;
-    }
-    
-    return updateProject(id, {
-        isActive: !project.isActive
-    });
+    var project = getProjectById(id);
+    if (!project) return Promise.resolve(false);
+    return updateProject(id, { isActive: !project.isActive });
 }

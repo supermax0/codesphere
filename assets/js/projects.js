@@ -544,7 +544,7 @@ function loadLatestProjects() {
     });
 }
 
-// Close modal handlers
+// Close modal handlers + Firestore updates
 document.addEventListener('DOMContentLoaded', function() {
     const modalClose = document.getElementById('modalClose');
     const previewModalClose = document.getElementById('previewModalClose');
@@ -557,11 +557,16 @@ document.addEventListener('DOMContentLoaded', function() {
         previewModalClose.addEventListener('click', closePreview);
     }
     
-    // Close on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePreview();
         }
+    });
+    
+    // Reload projects when Firestore updates
+    window.addEventListener('projectsUpdated', function() {
+        loadAllProjects();
+        loadLatestProjects();
     });
 });
 

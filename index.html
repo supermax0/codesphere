@@ -474,6 +474,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadLatestProjects();
             createParticles();
+            window.addEventListener('projectsUpdated', loadLatestProjects);
             
             // Add reveal class to cards
             document.querySelectorAll('.service-card, .stat-card, .project-card, .testimonial-card').forEach(card => {

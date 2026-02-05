@@ -194,6 +194,9 @@ function initDashboard() {
     // Load projects list
     loadProjectsList();
     
+    // Reload when Firestore updates projects
+    window.addEventListener('projectsUpdated', loadProjectsList);
+    
     // Load requests list
     loadRequestsList();
     
@@ -569,8 +572,8 @@ async function handleAddProject(e) {
         }
     }
     
-    // Add project
-    const newProject = addProject(formData);
+    // Add project (async for Firestore)
+    const newProject = await addProject(formData);
     
     if (newProject) {
         alert('تم إضافة المشروع بنجاح!');
@@ -682,8 +685,8 @@ async function handleEditProject(e) {
         }
     }
     
-    // Update project
-    const updated = updateProject(projectId, formData);
+    // Update project (async for Firestore)
+    const updated = await updateProject(projectId, formData);
     
     if (updated) {
         alert('تم تحديث المشروع بنجاح!');
@@ -863,8 +866,8 @@ function closeEditModal() {
  * Toggle project status
  * تفعيل/إلغاء تفعيل مشروع
  */
-function toggleProject(projectId) {
-    const toggled = toggleProjectStatus(projectId);
+async function toggleProject(projectId) {
+    const toggled = await toggleProjectStatus(projectId);
     if (toggled) {
         loadProjectsList();
     } else {
@@ -876,7 +879,7 @@ function toggleProject(projectId) {
  * Confirm and delete project
  * تأكيد وحذف مشروع
  */
-function confirmDeleteProject(projectId) {
+async function confirmDeleteProject(projectId) {
     const project = getProjectById(projectId);
     if (!project) {
         alert('المشروع غير موجود');
@@ -884,7 +887,7 @@ function confirmDeleteProject(projectId) {
     }
     
     if (confirm(`هل أنت متأكد من حذف المشروع "${project.name}"؟`)) {
-        const deleted = deleteProject(projectId);
+        const deleted = await deleteProject(projectId);
         if (deleted) {
             alert('تم حذف المشروع بنجاح');
             loadProjectsList();
