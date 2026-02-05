@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المشاريع - codespher</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="http://i.imgur.com/AUxIcsE.png" alt="codespher" class="logo-img">
+                <h1>codespher</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="projects.html" class="active">المشاريع</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>مشاريعنا</h1>
+            <p>استعرض مجموعة من أعمالنا ومشاريعنا المميزة</p>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects-section">
+        <div class="container">
+            <div class="projects-grid" id="projectsGrid">
+                <p class="no-projects">لا توجد مشاريع حالياً. أضف مشاريع من <a href="dashboard.html">لوحة التحكم</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="http://i.imgur.com/AUxIcsE.png" alt="codespher" class="footer-logo">
+                    <h3>codespher</h3>
+                    <p>نقدم أفضل الحلول الرقمية لمساعدتك على النجاح في عالم التكنولوجيا</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="services.html">الخدمات</a></li>
+                        <li><a href="projects.html">المشاريع</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>تواصل معنا</h4>
+                    <ul>
+                        <li>البريد الإلكتروني: info@codespher.com</li>
+                        <li>الهاتف: 07734049148</li>
+                        <li>العنوان: بغداد كراره خارج</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 codespher. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Preview Modal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <iframe id="previewFrame" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div class="modal description-modal" id="descriptionModal">
+        <div class="modal-content description-modal-content">
+            <div class="description-modal-header">
+                <div class="description-modal-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h2 class="description-modal-title" id="descriptionTitle">اسم المشروع</h2>
+                <span class="modal-close description-modal-close" id="descriptionModalClose">&times;</span>
+            </div>
+            <div class="description-modal-body">
+                <div class="description-modal-text markdown-content" id="descriptionContent">وصف المشروع</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/firebase-init.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/projects.js"></script>
+    <link rel="stylesheet" href="assets/css/chat.css">
+    <script src="assets/js/chat.js"></script>
+    <script>
+        // Navigation Toggle
+        document.getElementById('navToggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+
+        // Load projects
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllProjects();
+            
+            // Close description modal handlers
+            const descriptionModalClose = document.getElementById('descriptionModalClose');
+            const descriptionModal = document.getElementById('descriptionModal');
+            
+            if (descriptionModalClose) {
+                descriptionModalClose.addEventListener('click', closeDescriptionModal);
+            }
+            
+            if (descriptionModal) {
+                descriptionModal.addEventListener('click', function(e) {
+                    if (e.target === descriptionModal) {
+                        closeDescriptionModal();
+                    }
+                });
+            }
+            
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePreview();
+                    closeDescriptionModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراسلة AI - codespher</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/chat.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="http://i.imgur.com/AUxIcsE.png" alt="codespher" class="logo-img">
+                <h1>codespher</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="services.html">الخدمات</a></li>
+                <li><a href="projects.html">المشاريع</a></li>
+                <li><a href="chat.html" class="active">مراسلة AI</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Chat Section -->
+    <section class="chat-section">
+        <div class="container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="chat-avatar">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>مساعد AI الذكي</h2>
+                            <p>أنا هنا لمساعدتك في فهم متطلبات مشروعك</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" id="clearChat">مسح المحادثة</button>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="message-content">
+                            <p>مرحباً! 👋 أنا مساعد AI الذكي من codespher. يمكنني مساعدتك في:</p>
+                            <ul>
+                                <li>فهم متطلبات مشروعك</li>
+                                <li>تحديد نوع الخدمة المناسبة</li>
+                                <li>تقدير التكلفة والوقت</li>
+                                <li>إنشاء طلب مشروع مخصص</li>
+                            </ul>
+                            <p>أخبرني عن مشروعك أو احتياجاتك وسأقوم بإنشاء طلب مفصل لك! 🚀</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <textarea 
+                            id="chatInput" 
+                            class="chat-input" 
+                            placeholder="اكتب رسالتك هنا..."
+                            rows="1"
+                        ></textarea>
+                        <button class="chat-send-btn" id="sendBtn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chat-suggestions" id="chatSuggestions">
+                        <button class="suggestion-btn" data-suggestion="أريد موقع ويب لمشروعي">موقع ويب</button>
+                        <button class="suggestion-btn" data-suggestion="أريد متجر إلكتروني">متجر إلكتروني</button>
+                        <button class="suggestion-btn" data-suggestion="أريد تطبيق موبايل">تطبيق موبايل</button>
+                        <button class="suggestion-btn" data-suggestion="أريد نظام إدارة">نظام إدارة</button>
+                        <button class="suggestion-btn" data-suggestion="أريد تصميم شعار وهوية بصرية">تصميم جرافيكي</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="http://i.imgur.com/AUxIcsE.png" alt="codespher" class="footer-logo">
+                    <h3>codespher</h3>
+                    <p>نقدم أفضل الحلول الرقمية لمساعدتك على النجاح في عالم التكنولوجيا</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="services.html">الخدمات</a></li>
+                        <li><a href="projects.html">المشاريع</a></li>
+                        <li><a href="chat.html">مراسلة AI</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>تواصل معنا</h4>
+                    <ul>
+                        <li>البريد الإلكتروني: info@codespher.com</li>
+                        <li>الهاتف: 07734049148</li>
+                        <li>العنوان: بغداد كراره خارج</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 codespher. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="assets/js/firebase-init.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/chat.js"></script>
+    <script>
+        // Navigation Toggle
+        document.getElementById('navToggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
