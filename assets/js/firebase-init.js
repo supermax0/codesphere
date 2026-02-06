@@ -21,7 +21,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+let storage = null;
+try {
+  const { getStorage } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js");
+  storage = getStorage(app);
+} catch (e) {
+  console.warn("Firebase Storage not loaded:", e);
+}
 
 // Expose for use in non-module scripts (optional)
 if (typeof window !== "undefined") {

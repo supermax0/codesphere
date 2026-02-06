@@ -18,16 +18,15 @@ async function initFirestoreData() {
     if (!window.firebaseDb) return;
     try {
         var mod = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
-        var q = mod.query(
-            mod.collection(window.firebaseDb, FIRESTORE_COLLECTION),
-            mod.orderBy('createdAt', 'desc')
-        );
-        firestoreUnsubscribe = mod.onSnapshot(q, function (snapshot) {
-            projectsCache = snapshot.docs.map(function (doc) {
+        var colRef = mod.collection(window.firebaseDb, FIRESTORE_COLLECTION);
+        firestoreUnsubscribe = mod.onSnapshot(colRef, function (snapshot) {
+            var list = snapshot.docs.map(function (doc) {
                 var d = doc.data();
                 d.id = doc.id;
                 return d;
             });
+            list.sort(function (a, b) { return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0)); });
+            projectsCache = list;
             if (snapshot.empty && !localStorage.getItem('firestore_migrated')) {
                 var local = _getFromStorage();
                 if (local.length > 0) {
